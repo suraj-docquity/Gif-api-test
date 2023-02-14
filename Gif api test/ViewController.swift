@@ -18,14 +18,25 @@ class ViewController: UIViewController {
     var gifImage = [ImgObject]()
     var gifImgLinks = [String]()
     
+    var tapGesture : UITapGestureRecognizer!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // gif api data fetch
         fetchData()
+        
+        // Double tap gesture for collection view
+//        tapGesture = UITapGestureRecognizer(target: self, action: #selector(didDoubleTap(_:)))
+//        tapGesture.numberOfTapsRequired = 2
+//        self.gifCollectionView.addGestureRecognizer(tapGesture)
+        
     }
     
+    // gif api data fetch
     func fetchData(){
-//        let url = URL(string: "https://api.giphy.com/v1/gifs/trending?api_key=CqpjNoJdmUgkEyhXAVIFC01bZtK0oZoX&limit=3&rating=g")
-        let url = URL(string: "https://api.giphy.com/v1/gifs/trending?api_key=CqpjNoJdmUgkEyhXAVIFC01bZtK0oZoX&limit=100&rating=g")
+        
+        let url = URL(string: "https://api.giphy.com/v1/gifs/trending?api_key=CqpjNoJdmUgkEyhXAVIFC01bZtK0oZoX&limit=10&rating=g")
         
         
         let task = URLSession.shared.dataTask(with: url!, completionHandler:{
@@ -46,20 +57,19 @@ class ViewController: UIViewController {
             
             self.gifDataArr = gifDataObject!.data
             for i in self.gifDataArr {
-//                print(i.images.original.url,"\n")
                 self.gifImgLinks.append(i.images.original.url)
             }
             
             DispatchQueue.main.async {
                 self.gifCollectionView.reloadData()
             }
-            
         })
-        
         task.resume()
     }
 }
 
+
+// Collection view controller
 extension ViewController : UICollectionViewDelegate, UICollectionViewDataSource,
 UICollectionViewDelegateFlowLayout {
     
@@ -85,16 +95,29 @@ UICollectionViewDelegateFlowLayout {
             cell.gifImgView.image = UIImage(named: "empty-img.png")
         }
         
+        tapGesture = UITapGestureRecognizer(target: self, action: #selector(didDoubleTap(_:)))
+        tapGesture.numberOfTapsRequired = 2
+        cell.addGestureRecognizer(tapGesture)
+        
         return cell
     }
+    // Double tap gesture for collection [cell]
+//    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+//
+//        let size = (collectionView.frame.size.width - 30)/2
+//        return CGSize(width: size, height: size)
+//    }
     
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
-        let size = (collectionView.frame.size.width - 30)/2
-        return CGSize(width: size, height: size)
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+//        print(gifImgLinks[indexPath.row])
     }
+}
+
+
+extension ViewController {
     
-    
-    
-    
+    @objc func didDoubleTap(_ gesture: UITapGestureRecognizer){
+        print("Double tapped")
+    }
 }
